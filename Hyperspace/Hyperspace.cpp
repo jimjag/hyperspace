@@ -435,12 +435,12 @@ void draw(HyperspaceSaverSettings *inSettings){
 
 
 void setDefaults(HyperspaceSaverSettings *inSettings){
-	inSettings->dSpeed = 10;
-	inSettings->dStars = 2000;
-	inSettings->dStarSize = 10;
+	inSettings->dSpeed = 20;
+	inSettings->dStars = 3250;
+	inSettings->dStarSize = 15;
 	inSettings->dResolution = 10;
 	inSettings->dDepth = 5;
-	inSettings->dFov = 50;
+	inSettings->dFov = 115;
 	inSettings->dUseTunnels = 1;
 	inSettings->dUseGoo = 1;
 	inSettings->dShaders = 1;
@@ -549,7 +549,7 @@ void initSaver(HyperspaceSaverSettings *inSettings){
 	for(int i=0; i<inSettings->dStars; i++){
 		inSettings->stars[i] = new stretchedParticle;
 		inSettings->stars[i]->radius = rsRandf(float(inSettings->dStarSize) * 0.0005f) + float(inSettings->dStarSize) * 0.0005f;
-		if(i % 10){  // usually bland stars
+		if(i % 6){  // usually bland stars
 			inSettings->stars[i]->color[0] = 0.8f + rsRandf(0.2f);
 			inSettings->stars[i]->color[1] = 0.8f + rsRandf(0.2f);
 			inSettings->stars[i]->color[2] = 0.8f + rsRandf(0.2f);
