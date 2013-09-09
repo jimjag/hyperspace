@@ -64,10 +64,10 @@ FOUNDATION_STATIC_INLINE bool RSSShadersSupported(void)
 		{
 			NSOpenGLPixelFormatAttribute attribs[] = 
 			{
-				NSOpenGLPFAAccelerated, (NSOpenGLPixelFormatAttribute)YES,
+				NSOpenGLPFAAccelerated,
 				NSOpenGLPFAColorSize, (NSOpenGLPixelFormatAttribute)32,
-				NSOpenGLPFADoubleBuffer, (NSOpenGLPixelFormatAttribute)YES,
-				NSOpenGLPFAMinimumPolicy, (NSOpenGLPixelFormatAttribute)YES,
+				NSOpenGLPFADoubleBuffer,
+				NSOpenGLPFAMinimumPolicy,
 				(NSOpenGLPixelFormatAttribute)0
 			};
             NSOpenGLPixelFormat *format = [[[NSOpenGLPixelFormat alloc] initWithAttributes:attribs] autorelease];
@@ -75,6 +75,8 @@ FOUNDATION_STATIC_INLINE bool RSSShadersSupported(void)
             if (format)
             {
                 lView = [[[NSOpenGLView alloc] initWithFrame:NSZeroRect pixelFormat:format] autorelease];
+				if ([lView respondsToSelector:@selector(setWantsBestResolutionOpenGLSurface:)])
+					lView.wantsBestResolutionOpenGLSurface = YES;
                 [self addSubview:lView];
 				
                 lSettings.frameTime = 0;
@@ -107,7 +109,15 @@ FOUNDATION_STATIC_INLINE bool RSSShadersSupported(void)
 	[super setFrameSize:size];
 	if (lView)
 		[lView setFrameSize:size];
-	reshape(int(size.width), int(size.height), &lSettings);
+	
+	if ([lView respondsToSelector:@selector(convertRectToBacking:)] && lView.wantsBestResolutionOpenGLSurface)	// on Lion & later, if we're using a best resolution surface, then call glViewport() with the appropriate width and height for the backing
+	{
+		NSRect newBounds = [self convertRectToBacking:self.bounds];
+		
+		reshape(int(newBounds.size.width), int(newBounds.size.height), &lSettings);
+	}
+	else
+		reshape(int(size.width), int(size.height), &lSettings);
 }
 
 
@@ -250,6 +260,7 @@ FOUNDATION_STATIC_INLINE bool RSSShadersSupported(void)
 	[inDefaults setBool:lSettings.dUseGoo forKey:@"UseGoo"];
 	[inDefaults setBool:lSettings.dUseTunnels forKey:@"UseTunnels"];
 	[inDefaults setBool:lMainScreenOnly forKey:@"MainScreenOnly"];
+	[inDefaults synchronize];
 	
 	lIsConfiguring = NO;
 	if ([self isAnimating])
